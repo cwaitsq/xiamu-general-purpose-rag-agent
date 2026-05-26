@@ -52,6 +52,8 @@ project_docs/*
 !project_docs/部署文档_v1.md
 !project_docs/开发环境搭建文档_v1.md
 !project_docs/后端服务使用说明.md
+!project_docs/任务型Agent实施提示词.md
+!project_docs/任务型Agent能力说明.md
 
 # External dependency checkout kept local only
 qmd_repo/

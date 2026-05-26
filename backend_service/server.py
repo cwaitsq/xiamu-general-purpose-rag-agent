@@ -10,6 +10,13 @@ from apiflask import APIFlask
 from flask import Response, g, request
 from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 
+from .agent_tasks import (
+    ensure_demo_agent_seed_data,
+    get_agent_task_run,
+    list_agent_task_runs,
+    run_demo_task_agent,
+    summarize_agent_task_runs,
+)
 from .config import BackendSettings, load_settings
 from .database import connect, init_db
 from .services import (
@@ -164,6 +171,7 @@ def create_app() -> APIFlask:
     init_db(settings)
     conn = connect(settings)
     ensure_bootstrap_admin(conn, settings)
+    ensure_demo_agent_seed_data(conn, tenant_id=settings.default_tenant_id)
 
     app = APIFlask("foreign_trade_backend")
     app.json.ensure_ascii = False
@@ -514,6 +522,40 @@ def create_app() -> APIFlask:
         )
         return json_response(HTTPStatus.OK, data={"items": items})
 
+    @app.post("/api/agent/tasks/run")
+    @require_auth()
+    def agent_tasks_run():
+        payload = request.get_json(silent=True) or {}
+        session_id = str(payload.get("session_id") or f"agent-{int(time.time() * 1000)}").strip()
+        user_request = str(payload.get("request") or payload.get("user_request") or "").strip()
+        item = run_demo_task_agent(
+            current_conn(),
+            tenant_id=g.current_user["tenant_id"],
+            owner_user_id=g.current_user["id"],
+            session_id=session_id,
+            user_request=user_request,
+        )
+        return json_response(HTTPStatus.OK, data=item)
+
+    @app.post("/api/demo/agent/tasks/run")
+    def agent_tasks_run_demo():
+        if current_settings().gateway_api_key:
+            request_api_key = request.headers.get("x-api-key", "")
+            if request_api_key != current_settings().gateway_api_key:
+                return error_response(HTTPStatus.UNAUTHORIZED, 4011, "demo_api_key_required")
+        payload = request.get_json(silent=True) or {}
+        tenant_id = str(payload.get("tenant_id") or current_settings().default_tenant_id).strip() or current_settings().default_tenant_id
+        session_id = str(payload.get("session_id") or f"agent-demo-{int(time.time() * 1000)}").strip()
+        user_request = str(payload.get("request") or payload.get("user_request") or "").strip()
+        item = run_demo_task_agent(
+            current_conn(),
+            tenant_id=tenant_id,
+            owner_user_id=None,
+            session_id=session_id,
+            user_request=user_request,
+        )
+        return json_response(HTTPStatus.OK, data=item)
+
     @app.post("/api/knowledge/upload")
     @require_auth(admin_only=True)
     def knowledge_upload():
@@ -795,6 +837,30 @@ def create_app() -> APIFlask:
             limit = 100
         items = list_qa_logs(current_conn(), tenant_id=g.current_user["tenant_id"], limit=limit)
         return json_response(HTTPStatus.OK, data={"items": items})
+
+    @app.get("/api/admin/agent/tasks/runs")
+    @require_auth(admin_only=True)
+    def admin_agent_task_runs():
+        try:
+            limit = max(1, min(int(request.args.get("limit", "100")), 300))
+        except ValueError:
+            limit = 100
+        items = list_agent_task_runs(current_conn(), tenant_id=g.current_user["tenant_id"], limit=limit)
+        return json_response(HTTPStatus.OK, data={"items": items})
+
+    @app.get("/api/admin/agent/tasks/runs/<run_id>")
+    @require_auth(admin_only=True)
+    def admin_agent_task_run_get(run_id: str):
+        item = get_agent_task_run(current_conn(), tenant_id=g.current_user["tenant_id"], run_id=run_id)
+        if item is None:
+            return error_response(HTTPStatus.NOT_FOUND, 4004, "agent_task_run_not_found")
+        return json_response(HTTPStatus.OK, data=item)
+
+    @app.get("/api/admin/agent/tasks/metrics")
+    @require_auth(admin_only=True)
+    def admin_agent_task_metrics():
+        summary = summarize_agent_task_runs(current_conn(), tenant_id=g.current_user["tenant_id"])
+        return json_response(HTTPStatus.OK, data=summary)
 
     @app.post("/api/admin/logs/qa")
     @require_auth(admin_only=True)

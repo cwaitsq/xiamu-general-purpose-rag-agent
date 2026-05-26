@@ -1,0 +1,161 @@
+{
+  "name": "任务型Agent-订单库存工单闭环版",
+  "active": false,
+  "nodes": [
+    {
+      "id": "task-agent-0001",
+      "name": "Webhook 任务入口",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [
+        -860,
+        260
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "agent/order-ops",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "webhookId": "agent-order-ops"
+    },
+    {
+      "id": "task-agent-0002",
+      "name": "Code 整理任务请求",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -580,
+        260
+      ],
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body || {};\nconst tenantId = String(body.tenant_id ?? body.tenantId ?? \"foreign_trade_demo\").trim() || \"foreign_trade_demo\";\nconst sessionId = String(body.session_id ?? body.sessionId ?? `agent-${Date.now()}`).trim();\nconst userRequest = String(body.request ?? body.user_request ?? body.message ?? \"\").trim();\nif (!userRequest) {\n  throw new Error(\"request 不能为空\");\n}\nreturn [{\n  json: {\n    tenant_id: tenantId,\n    session_id: sessionId,\n    request: userRequest\n  }\n}];"
+      }
+    },
+    {
+      "id": "task-agent-0003",
+      "name": "HTTP 调任务型Agent",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -280,
+        260
+      ],
+      "notesInFlow": true,
+      "notes": "后端返回任务结果、工具调用日志、步骤日志和运行指标。适合拿来展示真正的 Agent 闭环，而不只是知识问答。",
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 1000,
+      "parameters": {
+        "method": "POST",
+        "url": "={{ ($env.BACKEND_BASE_URL || 'http://host.docker.internal:8877') + '/api/demo/agent/tasks/run' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "x-api-key",
+              "value": "={{ $env.RAG_KEFU_GATEWAY_API_KEY || '' }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { tenant_id: $json.tenant_id, session_id: $json.session_id, request: $json.request } }}",
+        "options": {
+          "timeout": 30000
+        }
+      }
+    },
+    {
+      "id": "task-agent-0004",
+      "name": "Code 规范任务结果",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        20,
+        260
+      ],
+      "parameters": {
+        "jsCode": "const payload = $input.first().json || {};\nconst data = payload.data || payload;\nreturn [{\n  json: {\n    run_id: data.id || null,\n    tenant_id: data.tenant_id || null,\n    session_id: data.session_id || null,\n    task_type: data.task_type || null,\n    status: data.status || data.outcome_status || \"failed\",\n    answer: data.answer || data.final_message || \"任务执行失败\",\n    handoff_required: Boolean(data.handoff_required),\n    next_action: data.next_action || null,\n    failure_reason: data.failure_reason || null,\n    order: data.order || null,\n    inventory: data.inventory || null,\n    ticket: data.ticket || null,\n    tool_calls: Array.isArray(data.tool_calls) ? data.tool_calls : [],\n    step_logs: Array.isArray(data.step_logs) ? data.step_logs : [],\n    metrics: data.metrics || {}\n  }\n}];"
+      }
+    },
+    {
+      "id": "task-agent-0005",
+      "name": "Respond JSON",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        320,
+        260
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseCode": 200,
+        "responseBody": "={{ $json }}"
+      }
+    }
+  ],
+  "connections": {
+    "Webhook 任务入口": {
+      "main": [
+        [
+          {
+            "node": "Code 整理任务请求",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code 整理任务请求": {
+      "main": [
+        [
+          {
+            "node": "HTTP 调任务型Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP 调任务型Agent": {
+      "main": [
+        [
+          {
+            "node": "Code 规范任务结果",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code 规范任务结果": {
+      "main": [
+        [
+          {
+            "node": "Respond JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveExecutionProgress": true,
+    "saveDataSuccessExecution": "all",
+    "saveDataErrorExecution": "all"
+  },
+  "versionId": "task-agent-2026-01",
+  "meta": {
+    "instanceId": "local-dev"
+  },
+  "id": "taskAgentOrderOps2026",
+  "tags": []
+}

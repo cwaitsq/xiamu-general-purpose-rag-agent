@@ -816,26 +816,168 @@ def workflow_backend_upload() -> dict:
     }
 
 
+def workflow_task_agent() -> dict:
+    return {
+        "name": "任务型Agent-订单库存工单闭环版",
+        "active": False,
+        "nodes": [
+            {
+                "id": "task-agent-0001",
+                "name": "Webhook 任务入口",
+                "type": "n8n-nodes-base.webhook",
+                "typeVersion": 1.1,
+                "position": [-860, 260],
+                "parameters": {
+                    "httpMethod": "POST",
+                    "path": "agent/order-ops",
+                    "responseMode": "responseNode",
+                    "options": {},
+                },
+                "webhookId": "agent-order-ops",
+            },
+            {
+                "id": "task-agent-0002",
+                "name": "Code 整理任务请求",
+                "type": "n8n-nodes-base.code",
+                "typeVersion": 2,
+                "position": [-580, 260],
+                "parameters": {
+                    "jsCode": dedent(
+                        """
+                        const body = $input.first().json.body || {};
+                        const tenantId = String(body.tenant_id ?? body.tenantId ?? "foreign_trade_demo").trim() || "foreign_trade_demo";
+                        const sessionId = String(body.session_id ?? body.sessionId ?? `agent-${Date.now()}`).trim();
+                        const userRequest = String(body.request ?? body.user_request ?? body.message ?? "").trim();
+                        if (!userRequest) {
+                          throw new Error("request 不能为空");
+                        }
+                        return [{
+                          json: {
+                            tenant_id: tenantId,
+                            session_id: sessionId,
+                            request: userRequest
+                          }
+                        }];
+                        """
+                    ).strip(),
+                },
+            },
+            {
+                "id": "task-agent-0003",
+                "name": "HTTP 调任务型Agent",
+                "type": "n8n-nodes-base.httpRequest",
+                "typeVersion": 4.2,
+                "position": [-280, 260],
+                "notesInFlow": True,
+                "notes": "后端返回任务结果、工具调用日志、步骤日志和运行指标。适合拿来展示真正的 Agent 闭环，而不只是知识问答。",
+                "onError": "continueRegularOutput",
+                "retryOnFail": True,
+                "maxTries": 2,
+                "waitBetweenTries": 1000,
+                "parameters": {
+                    "method": "POST",
+                    "url": backend_url("/api/demo/agent/tasks/run"),
+                    "sendHeaders": True,
+                    "headerParameters": {
+                        "parameters": [
+                            {"name": "Content-Type", "value": "application/json"},
+                            {"name": "x-api-key", "value": "={{ $env.RAG_KEFU_GATEWAY_API_KEY || '' }}"},
+                        ]
+                    },
+                    "sendBody": True,
+                    "specifyBody": "json",
+                    "jsonBody": "={{ { tenant_id: $json.tenant_id, session_id: $json.session_id, request: $json.request } }}",
+                    "options": {"timeout": 30000},
+                },
+            },
+            {
+                "id": "task-agent-0004",
+                "name": "Code 规范任务结果",
+                "type": "n8n-nodes-base.code",
+                "typeVersion": 2,
+                "position": [20, 260],
+                "parameters": {
+                    "jsCode": dedent(
+                        """
+                        const payload = $input.first().json || {};
+                        const data = payload.data || payload;
+                        return [{
+                          json: {
+                            run_id: data.id || null,
+                            tenant_id: data.tenant_id || null,
+                            session_id: data.session_id || null,
+                            task_type: data.task_type || null,
+                            status: data.status || data.outcome_status || "failed",
+                            answer: data.answer || data.final_message || "任务执行失败",
+                            handoff_required: Boolean(data.handoff_required),
+                            next_action: data.next_action || null,
+                            failure_reason: data.failure_reason || null,
+                            order: data.order || null,
+                            inventory: data.inventory || null,
+                            ticket: data.ticket || null,
+                            tool_calls: Array.isArray(data.tool_calls) ? data.tool_calls : [],
+                            step_logs: Array.isArray(data.step_logs) ? data.step_logs : [],
+                            metrics: data.metrics || {}
+                          }
+                        }];
+                        """
+                    ).strip(),
+                },
+            },
+            {
+                "id": "task-agent-0005",
+                "name": "Respond JSON",
+                "type": "n8n-nodes-base.respondToWebhook",
+                "typeVersion": 1.1,
+                "position": [320, 260],
+                "parameters": {
+                    "respondWith": "json",
+                    "responseCode": 200,
+                    "responseBody": "={{ $json }}",
+                },
+            },
+        ],
+        "connections": {
+            "Webhook 任务入口": {"main": [[{"node": "Code 整理任务请求", "type": "main", "index": 0}]]},
+            "Code 整理任务请求": {"main": [[{"node": "HTTP 调任务型Agent", "type": "main", "index": 0}]]},
+            "HTTP 调任务型Agent": {"main": [[{"node": "Code 规范任务结果", "type": "main", "index": 0}]]},
+            "Code 规范任务结果": {"main": [[{"node": "Respond JSON", "type": "main", "index": 0}]]},
+        },
+        "settings": {
+            "executionOrder": "v1",
+            "saveExecutionProgress": True,
+            "saveDataSuccessExecution": "all",
+            "saveDataErrorExecution": "all",
+        },
+        "versionId": "task-agent-2026-01",
+        "meta": {"instanceId": "local-dev"},
+        "id": "taskAgentOrderOps2026",
+        "tags": [],
+    }
+
+
 def import_guide() -> str:
     return dedent(
         """
         # n8n 导入说明
 
-        ## 先导哪 3 个文件
+        ## 先导哪 4 个文件
 
-        只导这 3 个：
+        只导这 4 个：
 
         - `01_外贸客服问答_最小可用版.json`
         - `02_外贸知识入库_最小可用版.json`
         - `03_后端知识上传_最小可用版.json`
+        - `04_任务型Agent_订单库存工单闭环版.json`
 
         目录里其他 `tmp_`、`patched`、`export`、`before` 这些文件都不是最终交付，不用导。
 
-        ## 这 3 条工作流分别干什么
+        ## 这 4 条工作流分别干什么
 
         - `01`：用户提问 -> n8n -> Gateway -> 返回 answered / handoff / fallback / blocked
         - `02`：知识整理和入库 -> n8n -> Gateway -> 返回整理结果、切片结果、索引状态
         - `03`：本机文件路径上传 -> n8n -> 后端 -> 后端触发真实入库链路
+        - `04`：任务请求 -> n8n -> 后端任务型 Agent -> 工具调用 -> 返回结果、工具日志、步骤日志、运行指标
 
         ## 需要哪些环境变量
 
@@ -857,19 +999,21 @@ def import_guide() -> str:
         - `GATEWAY_RUNNER_BASE_URL=http://127.0.0.1:8765`
         - `BACKEND_BASE_URL=http://127.0.0.1:8877`
 
-        ## 3 条 webhook 地址
+        ## 4 条 webhook 地址
 
         激活工作流后，默认 path 是：
 
         - `rag/foreign-trade-kefu`
         - `rag/kb-ingest`
         - `rag/knowledge-upload`
+        - `agent/order-ops`
 
         所以实际访问地址类似：
 
         - `http://127.0.0.1:5678/webhook/rag/foreign-trade-kefu`
         - `http://127.0.0.1:5678/webhook/rag/kb-ingest`
         - `http://127.0.0.1:5678/webhook/rag/knowledge-upload`
+        - `http://127.0.0.1:5678/webhook/agent/order-ops`
 
         ## 问答测试请求
 
@@ -930,13 +1074,24 @@ def import_guide() -> str:
         }
         ```
 
+        ## 任务型 Agent 测试请求
+
+        ```json
+        {
+          "tenant_id": "foreign_trade_demo",
+          "session_id": "agent-001",
+          "request": "帮我查一下订单 FT-2026-0002 的库存，不够就创建跟进工单"
+        }
+        ```
+
         ## 这版现在怎么理解
 
         - `01` 是问答工作流
         - `02` 是知识整理和入库工作流
         - `03` 是给后端上传接口做 n8n 挂接
+        - `04` 是任务型 Agent 闭环工作流
 
-        这 3 条已经够你做真实联调和验收，不是演示版假链路。
+        这 4 条已经够你做真实联调、任务闭环展示和验收，不是演示版假链路。
         """
     ).strip() + "\n"
 
@@ -946,6 +1101,7 @@ def main() -> None:
     pretty_write(WORKFLOW_DIR / "01_外贸客服问答_最小可用版.json", workflow_qa())
     pretty_write(WORKFLOW_DIR / "02_外贸知识入库_最小可用版.json", workflow_ingest())
     pretty_write(WORKFLOW_DIR / "03_后端知识上传_最小可用版.json", workflow_backend_upload())
+    pretty_write(WORKFLOW_DIR / "04_任务型Agent_订单库存工单闭环版.json", workflow_task_agent())
     (WORKFLOW_DIR / "导入说明.md").write_text(import_guide(), encoding="utf-8")
 
 

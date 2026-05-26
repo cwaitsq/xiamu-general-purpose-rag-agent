@@ -112,6 +112,60 @@ CREATE TABLE IF NOT EXISTS users (
   last_login_at TEXT
 );
 
+CREATE TABLE IF NOT EXISTS demo_orders (
+  id TEXT PRIMARY KEY,
+  tenant_id TEXT NOT NULL,
+  order_no TEXT NOT NULL,
+  customer_name TEXT NOT NULL,
+  sku TEXT NOT NULL,
+  quantity INTEGER NOT NULL,
+  currency TEXT NOT NULL,
+  amount REAL NOT NULL,
+  status TEXT NOT NULL,
+  eta_date TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS demo_inventory (
+  id TEXT PRIMARY KEY,
+  tenant_id TEXT NOT NULL,
+  sku TEXT NOT NULL,
+  available_qty INTEGER NOT NULL DEFAULT 0,
+  reserved_qty INTEGER NOT NULL DEFAULT 0,
+  updated_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS demo_tickets (
+  id TEXT PRIMARY KEY,
+  tenant_id TEXT NOT NULL,
+  owner_user_id TEXT,
+  order_no TEXT,
+  ticket_type TEXT NOT NULL,
+  title TEXT NOT NULL,
+  detail TEXT NOT NULL,
+  status TEXT NOT NULL,
+  created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS agent_task_runs (
+  id TEXT PRIMARY KEY,
+  tenant_id TEXT NOT NULL,
+  owner_user_id TEXT,
+  session_id TEXT NOT NULL,
+  task_type TEXT NOT NULL,
+  user_request TEXT NOT NULL,
+  outcome_status TEXT NOT NULL,
+  final_message TEXT NOT NULL,
+  tool_calls_json TEXT NOT NULL,
+  step_logs_json TEXT NOT NULL,
+  metrics_json TEXT NOT NULL,
+  result_json TEXT NOT NULL,
+  failure_reason TEXT,
+  created_ticket_id TEXT,
+  created_at TEXT NOT NULL
+);
+
 CREATE INDEX IF NOT EXISTS idx_sessions_tenant ON sessions (tenant_id, updated_at);
 CREATE INDEX IF NOT EXISTS idx_messages_session ON messages (session_id, created_at);
 CREATE INDEX IF NOT EXISTS idx_message_attachments_session ON message_attachments (tenant_id, owner_user_id, session_id, created_at);
@@ -122,6 +176,10 @@ CREATE INDEX IF NOT EXISTS idx_qa_logs_tenant ON qa_logs (tenant_id, created_at)
 CREATE INDEX IF NOT EXISTS idx_handoff_logs_tenant ON handoff_logs (tenant_id, created_at);
 CREATE INDEX IF NOT EXISTS idx_users_tenant ON users (tenant_id, role, status, updated_at);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_users_tenant_email ON users (tenant_id, email);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_demo_orders_tenant_order_no ON demo_orders (tenant_id, order_no);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_demo_inventory_tenant_sku ON demo_inventory (tenant_id, sku);
+CREATE INDEX IF NOT EXISTS idx_demo_tickets_tenant ON demo_tickets (tenant_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_agent_task_runs_tenant ON agent_task_runs (tenant_id, created_at);
 """
 
 

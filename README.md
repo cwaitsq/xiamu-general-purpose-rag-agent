@@ -17,6 +17,9 @@
 - 知识入库链路：支持切片产出、入库报告和后续向量检索对接。
 - Gateway 检索问答：承接检索、上下文拼装和问答服务。
 - 后端管理接口：提供知识上传、列表、日志、系统概览和用户管理接口。
+- 任务型 Agent 闭环：支持订单查询、库存核验、自动建工单、人工转交。
+- Agent 可观测性：保留工具调用日志、步骤日志、失败原因和运行指标。
+- Agent 评测脚本：可跑固定基准集，输出准确率、拒答率、幻觉率、转人工率和平均耗时。
 - 前端控制台：包含登录、聊天、知识管理、管理后台等页面。
 - n8n 工作流资产：包含最小可用工作流和 `feat/amazon-spapi-gateway-gateway-first-pack/` 打包资产。
 
@@ -86,6 +89,8 @@ pnpm dev --hostname 127.0.0.1 --port 3001
 ## 重要文档
 
 - [project_docs/仓库迁移与升级说明.md](./project_docs/仓库迁移与升级说明.md)
+- [project_docs/任务型Agent实施提示词.md](./project_docs/任务型Agent实施提示词.md)
+- [project_docs/任务型Agent能力说明.md](./project_docs/任务型Agent能力说明.md)
 - [project_docs/README.md](./project_docs/README.md)
 - [project_docs/项目收口说明.md](./project_docs/项目收口说明.md)
 - [project_docs/部署文档_v1.md](./project_docs/部署文档_v1.md)
@@ -99,3 +104,4 @@ pnpm dev --hostname 127.0.0.1 --port 3001
 - 默认基于 `main` 持续集成，较大改动建议走独立功能分支。
 - 本地运行日志、缓存、数据库和构建产物不提交到版本库。
 - 若继续推进“通用型客服 / 通用型知识助手”方向，优先抽象租户配置、知识处理链路和工作流组件，而不是继续写死外贸场景。
+- 若以“企业级 Agent 项目”对外展示，优先展示任务闭环、评测结果、日志可观测性和人机协同边界，而不是只展示聊天页面。

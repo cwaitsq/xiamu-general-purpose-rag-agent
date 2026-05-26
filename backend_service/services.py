@@ -1128,17 +1128,23 @@ def dashboard_summary(conn: DBConnection, *, tenant_id: str | None = None) -> di
         docs = conn.execute("SELECT COUNT(*) AS total FROM knowledge_docs WHERE tenant_id=?", (tenant_id,)).fetchone()
         jobs = conn.execute("SELECT COUNT(*) AS total FROM ingestion_jobs WHERE tenant_id=?", (tenant_id,)).fetchone()
         logs = conn.execute("SELECT COUNT(*) AS total FROM qa_logs WHERE tenant_id=?", (tenant_id,)).fetchone()
+        agent_runs = conn.execute("SELECT COUNT(*) AS total FROM agent_task_runs WHERE tenant_id=?", (tenant_id,)).fetchone()
+        tickets = conn.execute("SELECT COUNT(*) AS total FROM demo_tickets WHERE tenant_id=?", (tenant_id,)).fetchone()
     else:
         users = conn.execute("SELECT COUNT(*) AS total FROM users").fetchone()
         docs = conn.execute("SELECT COUNT(*) AS total FROM knowledge_docs").fetchone()
         jobs = conn.execute("SELECT COUNT(*) AS total FROM ingestion_jobs").fetchone()
         logs = conn.execute("SELECT COUNT(*) AS total FROM qa_logs").fetchone()
+        agent_runs = conn.execute("SELECT COUNT(*) AS total FROM agent_task_runs").fetchone()
+        tickets = conn.execute("SELECT COUNT(*) AS total FROM demo_tickets").fetchone()
 
     return {
         "users": int((users or {}).get("total") or 0),
         "knowledge_docs": int((docs or {}).get("total") or 0),
         "ingestion_jobs": int((jobs or {}).get("total") or 0),
         "qa_logs": int((logs or {}).get("total") or 0),
+        "agent_task_runs": int((agent_runs or {}).get("total") or 0),
+        "demo_tickets": int((tickets or {}).get("total") or 0),
     }
 
 
