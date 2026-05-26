@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>外贸客服 RAG 控制台</title>
+  <style>
+    :root {
+      --bg: #f5f2ea;
+      --panel: #fffdf8;
+      --line: #d9cfbe;
+      --text: #2d261d;
+      --sub: #6a5e50;
+      --brand: #1f6c5c;
+      --brand-soft: #dcefe9;
+      --muted: #867665;
+      --code: #1f1a15;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top right, #ece3d4 0, transparent 28%),
+        linear-gradient(180deg, #faf8f2 0%, var(--bg) 100%);
+    }
+    .wrap {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 28px 18px 40px;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 30px;
+      letter-spacing: 0.5px;
+    }
+    .sub {
+      margin: 0 0 20px;
+      color: var(--sub);
+      font-size: 14px;
+    }
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: #efe7d8;
+      color: var(--sub);
+      font-size: 12px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      gap: 18px;
+    }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 10px 24px rgba(64, 48, 33, 0.06);
+    }
+    .panel h2 {
+      margin: 0 0 14px;
+      font-size: 18px;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 13px;
+      color: var(--sub);
+    }
+    input, textarea, button {
+      width: 100%;
+      font: inherit;
+    }
+    input, textarea {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 12px;
+      background: #fff;
+      color: var(--text);
+    }
+    textarea {
+      min-height: 110px;
+      resize: vertical;
+    }
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 12px 14px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .primary { background: var(--brand); color: #fff; }
+    .secondary { background: #8e7c64; color: #fff; }
+    .ghost { background: var(--brand-soft); color: var(--brand); }
+    pre {
+      margin: 0;
+      padding: 14px;
+      border-radius: 12px;
+      background: var(--code);
+      color: #f7f1e9;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      min-height: 120px;
+    }
+    .list {
+      display: grid;
+      gap: 10px;
+      max-height: 380px;
+      overflow: auto;
+    }
+    .item {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      background: rgba(255,255,255,0.72);
+    }
+    .item strong {
+      display: block;
+      margin-bottom: 6px;
+    }
+    .hint {
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    @media (max-width: 980px) {
+      .grid { grid-template-columns: 1fr; }
+      .row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>外贸客服 RAG 控制台</h1>
+    <p class="sub">这页直接连后端服务。你可以在这里问答、上传资料、看知识库、看问答日志。</p>
+
+    <div class="toolbar">
+      <span class="tag">后端：<span id="health-backend">未检查</span></span>
+      <span class="tag">Gateway：<span id="health-gateway">未检查</span></span>
+      <span class="tag">多媒体：<span id="health-mm">未检查</span></span>
+      <button class="ghost" onclick="checkHealth()">刷新健康状态</button>
+    </div>
+
+    <div class="grid">
+      <div class="panel">
+        <h2>客服问答</h2>
+        <div class="row">
+          <div>
+            <label>tenant_id</label>
+            <input id="tenantId" value="foreign_trade_demo" />
+          </div>
+          <div>
+            <label>session_id</label>
+            <input id="sessionId" value="ui-demo-001" />
+          </div>
+        </div>
+        <label>问题</label>
+        <textarea id="question">最小起订量是多少？</textarea>
+        <div class="toolbar" style="margin-top: 12px;">
+          <button class="primary" onclick="sendQuestion()">发送问题</button>
+          <button class="secondary" onclick="loadHistory()">查看历史</button>
+        </div>
+        <pre id="chatResult">{}</pre>
+      </div>
+
+      <div class="panel">
+        <h2>资料上传与入库</h2>
+        <div class="row">
+          <div>
+            <label>tenant_id</label>
+            <input id="uploadTenantId" value="foreign_trade_demo" />
+          </div>
+          <div>
+            <label>文件</label>
+            <input id="uploadFile" type="file" />
+          </div>
+        </div>
+        <div class="toolbar">
+          <button class="primary" onclick="uploadFile()">上传并入库</button>
+          <button class="secondary" onclick="loadKnowledge()">刷新知识列表</button>
+          <button class="secondary" onclick="loadLogs()">刷新问答日志</button>
+        </div>
+        <pre id="uploadResult">{}</pre>
+        <div class="hint">文字资料可以直接入库。图片、音频、视频、扫描件会先走预处理，再整理成知识。</div>
+      </div>
+    </div>
+
+    <div class="grid" style="margin-top: 18px;">
+      <div class="panel">
+        <h2>知识列表</h2>
+        <div id="knowledgeList" class="list"></div>
+      </div>
+      <div class="panel">
+        <h2>问答日志</h2>
+        <div id="logList" class="list"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function api(path, options = {}) {
+      const response = await fetch(path, options);
+      const text = await response.text();
+      try {
+        return JSON.parse(text);
+      } catch {
+        return { code: response.status, message: text, data: null };
+      }
+    }
+
+    function pretty(data) {
+      return JSON.stringify(data, null, 2);
+    }
+
+    async function checkHealth() {
+      const backend = await api('/health');
+      document.getElementById('health-backend').textContent = backend?.data?.status || '异常';
+      try {
+        const gateway = await fetch('http://127.0.0.1:8765/gateways/rag_kefu_gateway/health').then(r => r.json());
+        document.getElementById('health-gateway').textContent = gateway.status || '异常';
+        document.getElementById('health-mm').textContent = gateway.multimodal_ready ? '已就绪' : '未配置';
+      } catch {
+        document.getElementById('health-gateway').textContent = '不可达';
+        document.getElementById('health-mm').textContent = '未知';
+      }
+    }
+
+    async function sendQuestion() {
+      const payload = {
+        tenant_id: document.getElementById('tenantId').value,
+        session_id: document.getElementById('sessionId').value,
+        question: document.getElementById('question').value
+      };
+      const data = await api('/api/chat/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      document.getElementById('chatResult').textContent = pretty(data);
+    }
+
+    async function loadHistory() {
+      const tenantId = document.getElementById('tenantId').value;
+      const sessionId = document.getElementById('sessionId').value;
+      const data = await api(`/api/chat/history?tenant_id=${encodeURIComponent(tenantId)}&session_id=${encodeURIComponent(sessionId)}`);
+      document.getElementById('chatResult').textContent = pretty(data);
+    }
+
+    async function uploadFile() {
+      const tenantId = document.getElementById('uploadTenantId').value;
+      const fileInput = document.getElementById('uploadFile');
+      if (!fileInput.files.length) {
+        alert('先选文件');
+        return;
+      }
+      const formData = new FormData();
+      formData.append('tenant_id', tenantId);
+      formData.append('file', fileInput.files[0]);
+      const response = await fetch('/api/knowledge/upload', {
+        method: 'POST',
+        body: formData
+      });
+      const data = await response.json();
+      document.getElementById('uploadResult').textContent = pretty(data);
+      await loadKnowledge();
+    }
+
+    async function loadKnowledge() {
+      const tenantId = document.getElementById('uploadTenantId').value;
+      const data = await api(`/api/knowledge/list?tenant_id=${encodeURIComponent(tenantId)}`);
+      const container = document.getElementById('knowledgeList');
+      container.innerHTML = '';
+      for (const item of data?.data?.items || []) {
+        const div = document.createElement('div');
+        div.className = 'item';
+        div.innerHTML = `
+          <strong>${item.title}</strong>
+          <div>kb_id：${item.id}</div>
+          <div>分类：${item.category} / 状态：${item.status}</div>
+          <div>可见性：${item.visibility} / chunk：${item.chunk_count}</div>
+        `;
+        container.appendChild(div);
+      }
+    }
+
+    async function loadLogs() {
+      const tenantId = document.getElementById('tenantId').value;
+      const data = await api(`/api/logs/qa?tenant_id=${encodeURIComponent(tenantId)}`);
+      const container = document.getElementById('logList');
+      container.innerHTML = '';
+      for (const item of data?.data?.items || []) {
+        const div = document.createElement('div');
+        div.className = 'item';
+        div.innerHTML = `
+          <strong>${item.question}</strong>
+          <div>状态：${item.status} / 置信度：${item.confidence}</div>
+          <div>回答：${item.answer}</div>
+        `;
+        container.appendChild(div);
+      }
+    }
+
+    checkHealth();
+    loadKnowledge();
+    loadLogs();
+  </script>
+</body>
+</html>

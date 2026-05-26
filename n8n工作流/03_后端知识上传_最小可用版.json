@@ -1,0 +1,130 @@
+{
+  "name": "后端知识上传-最小可用版",
+  "active": false,
+  "nodes": [
+    {
+      "id": "ft-kb-upload-0001",
+      "name": "Webhook 上传入口",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [
+        -820,
+        260
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "rag/knowledge-upload",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "webhookId": "rag-knowledge-upload"
+    },
+    {
+      "id": "ft-kb-upload-0002",
+      "name": "Code 整理上传请求",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -560,
+        260
+      ],
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body || {};\nconst tenantId = String(body.tenant_id ?? body.tenantId ?? \"foreign_trade_demo\").trim() || \"foreign_trade_demo\";\nconst filePath = String(body.file_path ?? body.filePath ?? \"\").trim();\nconst fileName = String(body.file_name ?? body.fileName ?? \"\").trim();\nif (!filePath) {\n  throw new Error(\"file_path 不能为空\");\n}\nreturn [{\n  json: {\n    tenant_id: tenantId,\n    file_path: filePath,\n    file_name: fileName || null\n  }\n}];"
+      }
+    },
+    {
+      "id": "ft-kb-upload-0003",
+      "name": "HTTP 调后端上传接口",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -280,
+        260
+      ],
+      "notesInFlow": true,
+      "notes": "这一条适合本机目录联调。把文件绝对路径发给后端，后端再触发真实入库链路。",
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000,
+      "parameters": {
+        "method": "POST",
+        "url": "={{ ($env.BACKEND_BASE_URL || 'http://host.docker.internal:8877') + '/api/knowledge/upload' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { tenant_id: $json.tenant_id, file_path: $json.file_path, file_name: $json.file_name } }}",
+        "options": {
+          "timeout": 300000
+        }
+      }
+    },
+    {
+      "id": "ft-kb-upload-0004",
+      "name": "Respond JSON",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        20,
+        260
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseCode": 200,
+        "responseBody": "={{ $json }}"
+      }
+    }
+  ],
+  "connections": {
+    "Webhook 上传入口": {
+      "main": [
+        [
+          {
+            "node": "Code 整理上传请求",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code 整理上传请求": {
+      "main": [
+        [
+          {
+            "node": "HTTP 调后端上传接口",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP 调后端上传接口": {
+      "main": [
+        [
+          {
+            "node": "Respond JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "3bf9bd51-0f15-4e0d-b9ad-130f0c120003",
+  "meta": {
+    "instanceId": "local-dev"
+  },
+  "id": "ragKbUpload2026",
+  "tags": []
+}

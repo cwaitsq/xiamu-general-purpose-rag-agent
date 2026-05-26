@@ -1,0 +1,57 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Secrets and local env
+.env
+gateway/.env
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.production.local
+frontend/.env.test.local
+
+# Python
+**/__pycache__/
+**/*.py[cod]
+**/.pytest_cache/
+**/.mypy_cache/
+**/.ruff_cache/
+**/.venv/
+backend_service/data/
+
+# Node / Next.js
+**/node_modules/
+frontend/.next/
+frontend/out/
+frontend/next-env.d.ts
+**/*.tsbuildinfo
+
+# Logs and runtime output
+*.log
+*.out
+*.err
+*.pid
+backend_service/logs/
+frontend/logs/
+gateway/logs/
+gateway/gateway_audit.jsonl
+gateway_audit.jsonl
+tmp_smoke/
+tenant_kb/**/chat/
+
+# Local indexes and generated search artifacts
+.qmd/*.sqlite
+.qmd/*.sqlite-*
+
+# Keep only a few handoff docs in git; retain the rest locally.
+project_docs/*
+!project_docs/README.md
+!project_docs/项目收口说明.md
+!project_docs/部署文档_v1.md
+!project_docs/开发环境搭建文档_v1.md
+!project_docs/后端服务使用说明.md
+
+# External dependency checkout kept local only
+qmd_repo/

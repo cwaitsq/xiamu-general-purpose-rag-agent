@@ -1,0 +1,2 @@
+-r gateway/requirements.txt
+-r backend_service/requirements.txt

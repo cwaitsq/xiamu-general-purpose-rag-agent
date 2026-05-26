@@ -1,0 +1,30 @@
+{
+  "status": "success",
+  "message": "原始资料已整理成标准知识文档",
+  "validate_only": false,
+  "publish_status": "active",
+  "use_llm": false,
+  "raw_files_total": 1,
+  "prepared_docs_total": 1,
+  "skipped_files_total": 0,
+  "errors": [],
+  "warnings": [],
+  "docs": [
+    {
+      "raw_file": "20260525/外贸客服场景定义.md",
+      "output_file": "auto_e9d69a1d44.md",
+      "kb_id": "auto_raw_e9d69a1d44",
+      "title": "外贸客服场景定义",
+      "category": "faq",
+      "status": "active",
+      "visibility": "internal",
+      "mode": "rule",
+      "warnings": []
+    }
+  ],
+  "output_dir": "C:\\Users\\zgy\\Desktop\\通用对话\\tenant_kb\\foreign_trade_demo\\docs\\auto",
+  "report_file": "C:\\Users\\zgy\\Desktop\\通用对话\\tenant_kb\\foreign_trade_demo\\prepare_output\\knowledge_prepare_report.json",
+  "preview_file": "C:\\Users\\zgy\\Desktop\\通用对话\\tenant_kb\\foreign_trade_demo\\prepare_output\\knowledge_prepare_preview.md",
+  "started_at": "2026-05-25T17:49:52",
+  "finished_at": "2026-05-25T17:49:52"
+}

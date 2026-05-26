@@ -1,0 +1,340 @@
+{
+  "status": "success",
+  "message": "原始资料整理完成，知识入库完成，qmd 索引已刷新",
+  "validate_only": false,
+  "refresh_index": true,
+  "prepare_raw": true,
+  "docs_total": 20,
+  "chunks_total": 93,
+  "index_status": "updated",
+  "errors": [],
+  "warnings": [
+    "内部赔付与特批口径.md 是 internal，只能给内部链路用",
+    "自动整理_001_内部售后处理口径.md 是 internal，只能给内部链路用"
+  ],
+  "docs": [
+    {
+      "file_name": "内部赔付与特批口径.md",
+      "kb_id": "internal_claims_001",
+      "title": "内部赔付与特批口径",
+      "category": "policy",
+      "status": "active",
+      "visibility": "internal",
+      "version": "2026-05-22",
+      "chunk_count": 4
+    },
+    {
+      "file_name": "售后与索赔规则.md",
+      "kb_id": "claims_rule_001",
+      "title": "售后与索赔规则",
+      "category": "policy",
+      "status": "active",
+      "visibility": "external",
+      "version": "2026-05-22",
+      "chunk_count": 6
+    },
+    {
+      "file_name": "外贸高频问题.md",
+      "kb_id": "faq_ft_001",
+      "title": "外贸高频问题",
+      "category": "faq",
+      "status": "active",
+      "visibility": "external",
+      "version": "2026-05-22",
+      "chunk_count": 10
+    },
+    {
+      "file_name": "报价与付款规则.md",
+      "kb_id": "pricing_payment_001",
+      "title": "报价与付款规则",
+      "category": "policy",
+      "status": "active",
+      "visibility": "external",
+      "version": "2026-05-22",
+      "chunk_count": 6
+    },
+    {
+      "file_name": "报关与清关文件说明.md",
+      "kb_id": "customs_docs_001",
+      "title": "报关与清关文件说明",
+      "category": "policy",
+      "status": "active",
+      "visibility": "external",
+      "version": "2026-05-22",
+      "chunk_count": 5
+    },
+    {
+      "file_name": "最小起订量与定制规则.md",
+      "kb_id": "moq_custom_001",
+      "title": "最小起订量与定制规则",
+      "category": "product",
+      "status": "active",
+      "visibility": "external",
+      "version": "2026-05-22",
+      "chunk_count": 6
+    },
+    {
+      "file_name": "样品与打样规则.md",
+      "kb_id": "sample_rule_001",
+      "title": "样品与打样规则",
+      "category": "product",
+      "status": "active",
+      "visibility": "external",
+      "version": "2026-05-22",
+      "chunk_count": 6
+    },
+    {
+      "file_name": "物流运输说明.md",
+      "kb_id": "shipping_ft_001",
+      "title": "物流运输说明",
+      "category": "policy",
+      "status": "active",
+      "visibility": "external",
+      "version": "2026-05-22",
+      "chunk_count": 6
+    },
+    {
+      "file_name": "生产周期与交付时效.md",
+      "kb_id": "lead_time_001",
+      "title": "生产周期与交付时效",
+      "category": "policy",
+      "status": "active",
+      "visibility": "external",
+      "version": "2026-05-22",
+      "chunk_count": 5
+    },
+    {
+      "file_name": "自动整理_001_内部售后处理口径.md",
+      "kb_id": "auto_raw_001_c49bcd43",
+      "title": "内部售后处理口径",
+      "category": "policy",
+      "status": "active",
+      "visibility": "internal",
+      "version": "2026-05-22",
+      "chunk_count": 4
+    },
+    {
+      "file_name": "自动整理_002_外贸客户常见问题汇总.md",
+      "kb_id": "auto_raw_002_94bab7fd",
+      "title": "外贸客户常见问题汇总",
+      "category": "faq",
+      "status": "active",
+      "visibility": "external",
+      "version": "2026-05-22",
+      "chunk_count": 5
+    },
+    {
+      "file_name": "自动整理_003_报价付款说明.md",
+      "kb_id": "auto_raw_003_9e9912bc",
+      "title": "报价付款说明",
+      "category": "policy",
+      "status": "active",
+      "visibility": "external",
+      "version": "2026-05-22",
+      "chunk_count": 6
+    },
+    {
+      "file_name": "自动整理_004_第 1 页.md",
+      "kb_id": "auto_raw_004_d514cbf1",
+      "title": "第 1 页",
+      "category": "policy",
+      "status": "active",
+      "visibility": "external",
+      "version": "2026-05-22",
+      "chunk_count": 1
+    },
+    {
+      "file_name": "自动整理_005_第 1 页.md",
+      "kb_id": "auto_raw_005_00307e5c",
+      "title": "第 1 页",
+      "category": "policy",
+      "status": "active",
+      "visibility": "external",
+      "version": "2026-05-22",
+      "chunk_count": 2
+    },
+    {
+      "file_name": "自动整理_006_工作表：海运时效.md",
+      "kb_id": "auto_raw_006_09beac3d",
+      "title": "工作表：海运时效",
+      "category": "policy",
+      "status": "active",
+      "visibility": "external",
+      "version": "2026-05-22",
+      "chunk_count": 2
+    },
+    {
+      "file_name": "自动整理_007_客户培训视频_转写样例.md",
+      "kb_id": "auto_raw_007_b5078942",
+      "title": "客户培训视频_转写样例",
+      "category": "policy",
+      "status": "active",
+      "visibility": "external",
+      "version": "2026-05-22",
+      "chunk_count": 1
+    },
+    {
+      "file_name": "自动整理_008_客户来电转写整理.md",
+      "kb_id": "auto_raw_008_20019b9c",
+      "title": "客户来电转写整理",
+      "category": "faq",
+      "status": "active",
+      "visibility": "external",
+      "version": "2026-05-22",
+      "chunk_count": 4
+    },
+    {
+      "file_name": "自动整理_009_客户聊天截图 OCR 结果.md",
+      "kb_id": "auto_raw_009_8463075a",
+      "title": "客户聊天截图 OCR 结果",
+      "category": "product",
+      "status": "active",
+      "visibility": "external",
+      "version": "2026-05-22",
+      "chunk_count": 5
+    },
+    {
+      "file_name": "订单修改与取消规则.md",
+      "kb_id": "order_change_001",
+      "title": "订单修改与取消规则",
+      "category": "policy",
+      "status": "active",
+      "visibility": "external",
+      "version": "2026-05-22",
+      "chunk_count": 5
+    },
+    {
+      "file_name": "转人工规则.md",
+      "kb_id": "handoff_ft_001",
+      "title": "转人工规则",
+      "category": "policy",
+      "status": "active",
+      "visibility": "external",
+      "version": "2026-05-22",
+      "chunk_count": 4
+    }
+  ],
+  "prepare_result": {
+    "status": "success",
+    "message": "原始资料已整理成标准知识文档",
+    "validate_only": false,
+    "publish_status": "active",
+    "use_llm": false,
+    "raw_files_total": 9,
+    "prepared_docs_total": 9,
+    "skipped_files_total": 0,
+    "errors": [],
+    "warnings": [],
+    "docs": [
+      {
+        "raw_file": "外贸客服样例/内部售后处理口径_原稿.txt",
+        "output_file": "自动整理_001_内部售后处理口径.md",
+        "kb_id": "auto_raw_001_c49bcd43",
+        "title": "内部售后处理口径",
+        "category": "policy",
+        "status": "active",
+        "visibility": "internal",
+        "mode": "rule",
+        "warnings": []
+      },
+      {
+        "raw_file": "外贸客服样例/客户常见问题_原稿.txt",
+        "output_file": "自动整理_002_外贸客户常见问题汇总.md",
+        "kb_id": "auto_raw_002_94bab7fd",
+        "title": "外贸客户常见问题汇总",
+        "category": "faq",
+        "status": "active",
+        "visibility": "external",
+        "mode": "rule",
+        "warnings": []
+      },
+      {
+        "raw_file": "外贸客服样例/报价付款说明_原稿.txt",
+        "output_file": "自动整理_003_报价付款说明.md",
+        "kb_id": "auto_raw_003_9e9912bc",
+        "title": "报价付款说明",
+        "category": "policy",
+        "status": "active",
+        "visibility": "external",
+        "mode": "rule",
+        "warnings": []
+      },
+      {
+        "raw_file": "多格式样例/付款条款说明_样例.pdf",
+        "output_file": "自动整理_004_第 1 页.md",
+        "kb_id": "auto_raw_004_d514cbf1",
+        "title": "第 1 页",
+        "category": "policy",
+        "status": "active",
+        "visibility": "external",
+        "mode": "rule",
+        "warnings": []
+      },
+      {
+        "raw_file": "多格式样例/外贸报价规则培训_样例.pptx",
+        "output_file": "自动整理_005_第 1 页.md",
+        "kb_id": "auto_raw_005_00307e5c",
+        "title": "第 1 页",
+        "category": "policy",
+        "status": "active",
+        "visibility": "external",
+        "mode": "rule",
+        "warnings": []
+      },
+      {
+        "raw_file": "多格式样例/外贸物流时效表_样例.xlsx",
+        "output_file": "自动整理_006_工作表：海运时效.md",
+        "kb_id": "auto_raw_006_09beac3d",
+        "title": "工作表：海运时效",
+        "category": "policy",
+        "status": "active",
+        "visibility": "external",
+        "mode": "rule",
+        "warnings": []
+      },
+      {
+        "raw_file": "媒体转写样例/客户培训视频_转写样例.srt",
+        "output_file": "自动整理_007_客户培训视频_转写样例.md",
+        "kb_id": "auto_raw_007_b5078942",
+        "title": "客户培训视频_转写样例",
+        "category": "policy",
+        "status": "active",
+        "visibility": "external",
+        "mode": "rule",
+        "warnings": []
+      },
+      {
+        "raw_file": "媒体转写样例/客户电话录音_转写样例.txt",
+        "output_file": "自动整理_008_客户来电转写整理.md",
+        "kb_id": "auto_raw_008_20019b9c",
+        "title": "客户来电转写整理",
+        "category": "faq",
+        "status": "active",
+        "visibility": "external",
+        "mode": "rule",
+        "warnings": []
+      },
+      {
+        "raw_file": "媒体转写样例/客户聊天截图_OCR样例.txt",
+        "output_file": "自动整理_009_客户聊天截图 OCR 结果.md",
+        "kb_id": "auto_raw_009_8463075a",
+        "title": "客户聊天截图 OCR 结果",
+        "category": "product",
+        "status": "active",
+        "visibility": "external",
+        "mode": "rule",
+        "warnings": []
+      }
+    ],
+    "output_dir": "C:\\Users\\zgy\\Desktop\\通用对话\\知识库\\已整理知识\\自动整理",
+    "report_file": "C:\\Users\\zgy\\Desktop\\通用对话\\知识库\\整理结果\\知识整理报告.json",
+    "preview_file": "C:\\Users\\zgy\\Desktop\\通用对话\\知识库\\整理结果\\知识整理预览.md",
+    "started_at": "2026-05-22T17:01:06",
+    "finished_at": "2026-05-22T17:01:06"
+  },
+  "report_file": "C:\\Users\\zgy\\Desktop\\通用对话\\知识库\\切片结果\\知识入库报告.json",
+  "chunk_file": "C:\\Users\\zgy\\Desktop\\通用对话\\知识库\\切片结果\\chunks.jsonl",
+  "preview_file": "C:\\Users\\zgy\\Desktop\\通用对话\\知识库\\切片结果\\切片预览.md",
+  "started_at": "2026-05-22T17:01:06",
+  "finished_at": "2026-05-22T17:01:07"
+}

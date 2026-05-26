@@ -1,0 +1,238 @@
+.shell {
+  position: relative;
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  overflow: hidden;
+  padding: 24px;
+  background:
+    radial-gradient(circle at top left, rgba(109, 170, 255, 0.16), transparent 30%),
+    radial-gradient(circle at bottom right, rgba(15, 23, 42, 0.08), transparent 28%),
+    linear-gradient(180deg, #f7f9fc 0%, #eef3f8 52%, #f9fbfd 100%);
+}
+
+.glowTop,
+.glowBottom {
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(48px);
+  pointer-events: none;
+}
+
+.glowTop {
+  top: -120px;
+  left: -120px;
+  width: 280px;
+  height: 280px;
+  background: rgba(77, 145, 255, 0.18);
+}
+
+.glowBottom {
+  right: -120px;
+  bottom: -120px;
+  width: 320px;
+  height: 320px;
+  background: rgba(15, 23, 42, 0.08);
+}
+
+.card {
+  position: relative;
+  z-index: 1;
+  width: min(440px, 100%);
+  border: 1px solid rgba(255, 255, 255, 0.82);
+  border-radius: 32px;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.08);
+  backdrop-filter: blur(20px);
+  padding: 30px;
+}
+
+.header {
+  text-align: center;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(1.9rem, 4vw, 2.4rem);
+  line-height: 1.12;
+  letter-spacing: -0.05em;
+  color: #0f172a;
+}
+
+.tabRow {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 26px;
+  padding: 6px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.05);
+}
+
+.tabButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  border-radius: 999px;
+  color: #64748b;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.tabButton:hover {
+  transform: translateY(-1px);
+}
+
+.tabButtonActive {
+  background: #ffffff;
+  color: #0f172a;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+.success,
+.alert {
+  margin-top: 16px;
+  border-radius: 18px;
+  padding: 13px 14px;
+  font-size: 0.84rem;
+  line-height: 1.7;
+}
+
+.success {
+  border: 1px solid rgba(22, 163, 74, 0.14);
+  background: rgba(240, 253, 244, 0.92);
+  color: #15803d;
+}
+
+.alert {
+  border: 1px solid rgba(220, 38, 38, 0.14);
+  background: rgba(254, 242, 242, 0.94);
+  color: #b91c1c;
+}
+
+.form {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+}
+
+.label {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #334155;
+}
+
+.passwordHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.inlineButton {
+  border: 0;
+  background: transparent;
+  color: #2563eb;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.input {
+  min-height: 52px;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 18px;
+  background: rgba(248, 250, 252, 0.96);
+  padding: 0 15px;
+  font-size: 0.96rem;
+  color: #0f172a;
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.input::placeholder {
+  color: #94a3b8;
+}
+
+.input:focus {
+  border-color: rgba(37, 99, 235, 0.35);
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.08);
+  background: #ffffff;
+}
+
+.submit {
+  min-height: 52px;
+  margin-top: 4px;
+  border: 0;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #10213e 0%, #1d72e8 100%);
+  color: #ffffff;
+  font-size: 0.96rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.submit:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 18px 28px rgba(29, 114, 232, 0.18);
+}
+
+.submit:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+  transform: none;
+  box-shadow: none;
+}
+
+.footer {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 18px;
+  font-size: 0.84rem;
+  line-height: 1.7;
+  color: #52606d;
+}
+
+.footer a {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+  .shell {
+    padding: 16px;
+  }
+
+  .card {
+    border-radius: 26px;
+    padding: 22px;
+  }
+
+  .title {
+    font-size: 1.8rem;
+  }
+}

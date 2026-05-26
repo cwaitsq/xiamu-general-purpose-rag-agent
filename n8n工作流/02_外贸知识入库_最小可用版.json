@@ -1,0 +1,363 @@
+{
+  "name": "外贸知识入库-最小可用版",
+  "active": false,
+  "nodes": [
+    {
+      "id": "ft-kb-ingest-0001",
+      "name": "Webhook 入库入口",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [
+        -1080,
+        260
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "rag/kb-ingest",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "webhookId": "rag-kb-ingest"
+    },
+    {
+      "id": "ft-kb-ingest-0002",
+      "name": "Code 整理入库请求",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -820,
+        260
+      ],
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body || {};\nconst rawMode = String(body.mode ?? body.action ?? \"prepare_and_ingest\").trim().toLowerCase();\nconst modeMap = {\n  prepare: \"prepare_only\",\n  prepare_only: \"prepare_only\",\n  \"prepare-only\": \"prepare_only\",\n  prepare_and_ingest: \"prepare_and_ingest\",\n  \"prepare-and-ingest\": \"prepare_and_ingest\",\n  prepare_raw: \"prepare_and_ingest\",\n  ingest: \"ingest_only\",\n  ingest_only: \"ingest_only\",\n  \"ingest-only\": \"ingest_only\"\n};\nconst mode = modeMap[rawMode] || \"prepare_and_ingest\";\nconst validateOnly = Boolean(body.validate_only ?? body.validateOnly ?? false);\nconst refreshIndexRaw = body.refresh_index ?? body.refreshIndex;\nconst refreshIndex = refreshIndexRaw === undefined ? true : Boolean(refreshIndexRaw);\nconst publishStatusRaw = String(body.publish_status ?? body.publishStatus ?? \"active\").trim().toLowerCase();\nconst publishStatus = [\"active\", \"draft\", \"inactive\"].includes(publishStatusRaw) ? publishStatusRaw : \"active\";\nconst prepareUseLlm = Boolean(body.prepare_use_llm ?? body.prepareUseLlm ?? false);\nconst tenantId = String(body.tenant_id ?? body.tenantId ?? \"foreign_trade_demo\").trim() || \"foreign_trade_demo\";\nconst filePath = String(body.target_file_path ?? body.file_path ?? body.filePath ?? \"\").trim();\nconst fileName = String(body.file_name ?? body.fileName ?? (filePath ? filePath.split(/[\\\\/]/).pop() : \"\") ?? \"\").trim();\nreturn [{\n  json: {\n    tenant_id: tenantId,\n    mode,\n    validate_only: validateOnly,\n    refresh_index: refreshIndex,\n    publish_status: publishStatus,\n    prepare_use_llm: prepareUseLlm,\n    file_path: filePath || null,\n    file_name: fileName || null\n  }\n}];"
+      }
+    },
+    {
+      "id": "ft-kb-ingest-0003",
+      "name": "If 只整理",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -540,
+        160
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "cond-kb-prepare-only",
+              "leftValue": "={{ $json.mode }}",
+              "rightValue": "prepare_only",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "ft-kb-ingest-0004",
+      "name": "If 整理后入库",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -540,
+        360
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "cond-kb-prepare-and-ingest",
+              "leftValue": "={{ $json.mode }}",
+              "rightValue": "prepare_and_ingest",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "ft-kb-ingest-0005",
+      "name": "HTTP 只整理原始资料",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -260,
+        120
+      ],
+      "notesInFlow": true,
+      "notes": "只做资料整理，不生成切片，也不刷新 qmd。",
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000,
+      "parameters": {
+        "method": "POST",
+        "url": "={{ ($env.GATEWAY_RUNNER_BASE_URL || 'http://host.docker.internal:8765') + '/gateways/rag_kefu_gateway/ingest/prepare' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "x-api-key",
+              "value": "={{ $env.RAG_KEFU_GATEWAY_API_KEY }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { tenant_id: $json.tenant_id, validate_only: $json.validate_only, publish_status: $json.publish_status, use_llm: $json.prepare_use_llm, target_file_path: $json.file_path } }}",
+        "options": {
+          "timeout": 120000
+        }
+      }
+    },
+    {
+      "id": "ft-kb-ingest-0006",
+      "name": "HTTP 整理后入库",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -260,
+        320
+      ],
+      "notesInFlow": true,
+      "notes": "先整理 raw 资料，再生成切片，再刷新 qmd。",
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000,
+      "parameters": {
+        "method": "POST",
+        "url": "={{ ($env.GATEWAY_RUNNER_BASE_URL || 'http://host.docker.internal:8765') + '/gateways/rag_kefu_gateway/ingest/rebuild' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "x-api-key",
+              "value": "={{ $env.RAG_KEFU_GATEWAY_API_KEY }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { tenant_id: $json.tenant_id, prepare_raw: true, publish_status: $json.publish_status, refresh_index: $json.refresh_index, prepare_use_llm: $json.prepare_use_llm, target_file_path: $json.file_path } }}",
+        "options": {
+          "timeout": 300000
+        }
+      }
+    },
+    {
+      "id": "ft-kb-ingest-0007",
+      "name": "HTTP 仅入库已整理知识",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -260,
+        520
+      ],
+      "notesInFlow": true,
+      "notes": "只处理 docs 目录里已经整理好的标准知识文档，不回头整理 raw 资料。",
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000,
+      "parameters": {
+        "method": "POST",
+        "url": "={{ ($env.GATEWAY_RUNNER_BASE_URL || 'http://host.docker.internal:8765') + '/gateways/rag_kefu_gateway/ingest/rebuild' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "x-api-key",
+              "value": "={{ $env.RAG_KEFU_GATEWAY_API_KEY }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { tenant_id: $json.tenant_id, validate_only: $json.validate_only, refresh_index: $json.refresh_index, prepare_raw: false } }}",
+        "options": {
+          "timeout": 300000
+        }
+      }
+    },
+    {
+      "id": "ft-kb-ingest-0008",
+      "name": "Code 规范入库结果",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        40,
+        320
+      ],
+      "parameters": {
+        "jsCode": "const payload = $input.first().json || {};\nconst req = $(\"Code 整理入库请求\").first().json || {};\nif (payload.status) {\n  return [{\n    json: {\n      tenant_id: req.tenant_id,\n      mode: req.mode,\n      file_path: req.file_path || null,\n      file_name: req.file_name || null,\n      status: String(payload.status),\n      message: String(payload.message || \"\"),\n      validate_only: payload.validate_only ?? req.validate_only,\n      refresh_index: payload.refresh_index ?? req.refresh_index,\n      prepare_raw: payload.prepare_raw ?? (req.mode === \"prepare_and_ingest\"),\n      raw_files_total: Number(payload.raw_files_total || 0),\n      prepared_docs_total: Number(payload.prepared_docs_total || 0),\n      skipped_files_total: Number(payload.skipped_files_total || 0),\n      docs_total: Number(payload.docs_total || 0),\n      chunks_total: Number(payload.chunks_total || 0),\n      index_status: payload.index_status || null,\n      errors: Array.isArray(payload.errors) ? payload.errors : [],\n      warnings: Array.isArray(payload.warnings) ? payload.warnings : [],\n      docs: Array.isArray(payload.docs) ? payload.docs : [],\n      prepare_result: payload.prepare_result || null,\n      output_dir: payload.output_dir || null,\n      report_file: payload.report_file || null,\n      preview_file: payload.preview_file || null,\n      chunk_file: payload.chunk_file || null\n    }\n  }];\n}\nconst detail = payload.message || payload.error || payload.description || \"knowledge_flow_unavailable\";\nreturn [{\n  json: {\n    tenant_id: req.tenant_id,\n    mode: req.mode,\n    file_path: req.file_path || null,\n    file_name: req.file_name || null,\n    status: \"failed\",\n    message: \"当前知识处理链路暂时不可用。\",\n    validate_only: Boolean(req.validate_only),\n    refresh_index: Boolean(req.refresh_index),\n    prepare_raw: req.mode === \"prepare_and_ingest\",\n    raw_files_total: 0,\n    prepared_docs_total: 0,\n    skipped_files_total: 0,\n    docs_total: 0,\n    chunks_total: 0,\n    index_status: \"failed\",\n    errors: [String(detail)],\n    warnings: [],\n    docs: [],\n    prepare_result: null,\n    output_dir: null,\n    report_file: null,\n    preview_file: null,\n    chunk_file: null\n  }\n}];"
+      }
+    },
+    {
+      "id": "ft-kb-ingest-0009",
+      "name": "Respond JSON",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        320,
+        320
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseCode": 200,
+        "responseBody": "={{ $json }}"
+      }
+    }
+  ],
+  "connections": {
+    "Webhook 入库入口": {
+      "main": [
+        [
+          {
+            "node": "Code 整理入库请求",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code 整理入库请求": {
+      "main": [
+        [
+          {
+            "node": "If 只整理",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If 只整理": {
+      "main": [
+        [
+          {
+            "node": "HTTP 只整理原始资料",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If 整理后入库",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP 只整理原始资料": {
+      "main": [
+        [
+          {
+            "node": "Code 规范入库结果",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If 整理后入库": {
+      "main": [
+        [
+          {
+            "node": "HTTP 整理后入库",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP 仅入库已整理知识",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP 整理后入库": {
+      "main": [
+        [
+          {
+            "node": "Code 规范入库结果",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP 仅入库已整理知识": {
+      "main": [
+        [
+          {
+            "node": "Code 规范入库结果",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code 规范入库结果": {
+      "main": [
+        [
+          {
+            "node": "Respond JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveExecutionProgress": true,
+    "saveDataSuccessExecution": "all",
+    "saveDataErrorExecution": "all"
+  },
+  "versionId": "c5ce06db-c5c5-40f9-8539-918b5de80002",
+  "meta": {
+    "instanceId": "local-dev"
+  },
+  "id": "ragKbIngest2026",
+  "tags": []
+}

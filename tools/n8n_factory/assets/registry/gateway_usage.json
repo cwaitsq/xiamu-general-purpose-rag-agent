@@ -1,0 +1,37 @@
+{
+  "gateways": {
+    "rag_kefu_gateway": {
+      "call_count": 240,
+      "error_count": 22,
+      "last_called_at": "2026-05-24T08:34:05.716260+00:00",
+      "routes": {
+        "health": {
+          "call_count": 151,
+          "error_count": 4,
+          "last_called_at": "2026-05-24T08:34:05.716260+00:00",
+          "last_status_code": 200
+        },
+        "ingest_rebuild": {
+          "call_count": 7,
+          "error_count": 1,
+          "last_called_at": "2026-05-22T07:13:34.475417+00:00",
+          "last_status_code": 200
+        },
+        "prepare_raw": {
+          "call_count": 4,
+          "error_count": 1,
+          "last_called_at": "2026-05-22T15:22:45.677444+00:00",
+          "last_status_code": 200
+        },
+        "query": {
+          "call_count": 78,
+          "error_count": 16,
+          "last_called_at": "2026-05-24T08:27:13.060098+00:00",
+          "last_status_code": 200
+        }
+      }
+    }
+  },
+  "schema_version": 1,
+  "updated_at": "2026-05-24T08:34:05.716260+00:00"
+}
