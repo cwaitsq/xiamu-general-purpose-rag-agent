@@ -284,11 +284,11 @@ function MessageBubble({
 
   return (
     <div className={`${styles.messageRow} ${isUser ? styles.messageRowUser : styles.messageRowAssistant}`}>
-      {!isUser ? <div className={styles.assistantAvatar}>妮</div> : null}
+      {!isUser ? <div className={styles.assistantAvatar}>外</div> : null}
 
       <div className={styles.messageStack}>
         <div className={styles.messageMeta}>
-          <span>{isUser ? "你" : "妮妮"}</span>
+          <span>{isUser ? "你" : "归栖"}</span>
           <span>{pending ? "生成中..." : formatDate(createdAt)}</span>
         </div>
 
@@ -708,9 +708,9 @@ export function DashboardPage({ currentUser }: { currentUser: CurrentUser }) {
         <aside className={styles.sidebar}>
           <div className={styles.sidebarTop}>
             <div className={styles.brandRow}>
-              <div className={styles.brandLogo}>妮</div>
+              <div className={styles.brandLogo}>外</div>
               <div>
-                <div className={styles.brandTitle}>妮妮外贸客服系统</div>
+                <div className={styles.brandTitle}>归栖外贸智能助手</div>
                 <div className={styles.brandSubtitle}>外贸客服助手</div>
               </div>
             </div>
@@ -889,7 +889,7 @@ export function DashboardPage({ currentUser }: { currentUser: CurrentUser }) {
                     void sendQuestion();
                   }
                 }}
-                placeholder="给妮妮发送消息，支持上传图片、文档、报价单、FAQ 附件..."
+                placeholder="给归栖发送消息，支持上传图片、文档、报价单、FAQ 附件..."
               />
 
               <div className={styles.composerBar}>

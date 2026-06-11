@@ -311,8 +311,8 @@ def is_identity_question(question: str) -> bool:
         "你叫什么",
         "你叫啥",
         "介绍一下你自己",
-        "妮妮是谁",
-        "妮妮能做什么",
+        "归栖是谁",
+        "归栖能做什么",
     ]
     return any(pattern in normalized_question for pattern in patterns)
 
@@ -379,7 +379,7 @@ def build_llm_answer(request: QueryRequest, ordered_chunks: list[Chunk], setting
         )
     evidence_text = "\n\n".join(evidence_lines)
     system_prompt = (
-        "你是妮妮，是外贸智能客服助手。"
+        "你是归栖，是外贸智能客服助手。"
         "你只能基于给定证据回答。"
         "不要编造报价、账期、赔付、责任归属、合同条款、绝对交期。"
         "如果证据不够，就明确说当前资料不足，建议补充信息或转人工。"
@@ -416,7 +416,7 @@ def build_answer(
     if is_identity_question(request.question):
         return QueryResponse(
             status="answered",
-            answer="我是妮妮，是这套系统里的外贸智能客服助手，主要负责先接待客户、回答标准问题、整理需求，并在证据不足或风险较高时建议转人工继续处理。",
+            answer="我是归栖，是这套系统里的外贸智能客服助手，主要负责先接待客户、回答标准问题、整理需求，并在证据不足或风险较高时建议转人工继续处理。",
             sources=[],
             confidence="high",
             handoff_required=False,
@@ -882,8 +882,8 @@ def is_identity_question(question: str, *, profile: TenantProfile | None = None)
         "你叫啥",
         "你叫什么",
         "介绍一下你自己",
-        "妮妮是谁",
-        "妮妮能做什么",
+        "归栖是谁",
+        "归栖能做什么",
     ]
     active_profile = profile or DEFAULT_TENANT_PROFILE
     alias_patterns = [re.sub(r"\s+", "", alias.lower()) for alias in active_profile.identity_keywords]

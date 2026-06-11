@@ -1070,9 +1070,9 @@ export function AdminConsole() {
       <div className={styles.layout}>
         <aside className={styles.sidebar}>
           <div className={styles.brandBlock}>
-            <div className={styles.brandMark}>妮</div>
+            <div className={styles.brandMark}>外</div>
             <div>
-              <div className={styles.brandTitle}>妮妮外贸客服系统</div>
+              <div className={styles.brandTitle}>归栖外贸智能助手</div>
             </div>
           </div>
 

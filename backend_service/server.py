@@ -1,4 +1,9 @@
 from __future__ import annotations
+import sys
+import os
+ROOT_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, ROOT_PATH)
+
 
 import time
 from functools import wraps
@@ -7,7 +12,7 @@ from pathlib import Path
 from typing import Any, Callable
 
 from apiflask import APIFlask
-from flask import Response, g, request
+from flask import Response, g, request, Flask
 from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 
 from .agent_tasks import (
@@ -942,3 +947,7 @@ def run() -> None:
 
 if __name__ == "__main__":
     run()
+from flask_cors import CORS
+# 在创建 Flask 实例后加上这行
+app = Flask(__name__)
+CORS(app)  # 允许所有跨域请求

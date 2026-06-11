@@ -116,7 +116,7 @@ export function AuthPage({ mode }: { mode: Mode }) {
 
       <section className={styles.card}>
         <header className={styles.header}>
-          <h1 className={styles.title}>妮妮外贸智能客服系统</h1>
+          <h1 className={styles.title}>归栖外贸智能客服系统</h1>
         </header>
 
         <div className={styles.tabRow}>
